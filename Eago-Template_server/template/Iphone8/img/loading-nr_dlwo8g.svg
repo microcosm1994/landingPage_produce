@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" x="0px" y="0px" width="480px" height="480px" viewBox="0 0 480 480" enable-background="new 0 0 480 480" xml:space="preserve">
+<style type="text/css">
+<![CDATA[
+  @keyframes fill01 {
+	  0% {
+		  fill: #FFFFFF;
+	  }
+	  25% {
+		  fill: #CB1C27;
+	  }
+	  50% {
+		  fill: #C1C1C1;
+	  }
+	  75% {
+		  fill: #ededed;
+	  }
+	  100% {
+		  fill: #FFFFFF;
+	  }
+  }
+  @keyframes fill02 {
+	  0% {
+		  fill: #ededed;
+	  }
+	  25% {
+		  fill: #FFFFFF;
+	  }
+	  50% {
+		  fill: #CB1C27;
+	  }
+	  75% {
+		  fill: #C1C1C1;
+	  }
+	  100% {
+		  fill: #ededed;
+	  }
+  }
+  @keyframes fill03 {
+	  0% {
+		  fill: #CB1C27;
+	  }
+	  25% {
+		  fill: #C1C1C1;
+	  }
+	  50% {
+		  fill: #ededed;
+	  }
+	  75% {
+		  fill: #FFFFFF;
+	  }
+	  100% {
+		  fill: #CB1C27;
+	  }
+  }
+  @keyframes fill04 {
+	  0% {
+		  fill: #C1C1C1;
+	  }
+	  25% {
+		  fill: #ededed;
+	  }
+	  50% {
+		  fill: #FFFFFF;
+	  }
+	  75% {
+		  fill: #CB1C27;
+	  }
+	  100% {
+		  fill: #C1C1C1;
+	  }
+  }
+
+  #loader-01 {
+	  fill: #FFFFFF;
+	  animation-name: fill01;
+	  animation-duration: 0.8s;
+	  animation-iteration-count: infinite;
+  }
+  #loader-02 {
+	  fill: #ededed;
+	  animation-name: fill02;
+	  animation-duration: 0.8s;
+	  animation-iteration-count: infinite;
+  }
+  #loader-03 {
+	  fill: #CB1C27;
+	  animation-name: fill03;
+	  animation-duration: 0.8s;
+	  animation-iteration-count: infinite;
+  }
+  #loader-04 {
+	  fill: #C1C1C1;
+	  animation-name: fill04;
+	  animation-duration: 0.8s;
+	  animation-iteration-count: infinite;
+  }
+
+]]>
+</style>
+<rect id="loader-01" x="62.124" y="4.487" fill="#FFFFFF" width="167.458" height="225.502"/>
+<path id="loader-02" fill="#ededed" d="M320.846 4.46c50.402 0 91.251 46.299 91.251 99.271l-0.036 126.259H249.993V4.487L320.846 4.46"/>
+<rect id="loader-03" x="62.124" y="252.521" fill="#CB1C27" width="167.458" height="225.479"/>
+<path id="loader-04" fill="#c1c1c1" d="M228.449 347.953c0 52.987 40.904 95.892 91.305 95.892 50.402 0 91.288-42.904 91.288-95.892 0-52.93-40.886-95.845-91.288-95.845C269.354 252.108 228.449 295.023 228.449 347.953"/>
+</svg>

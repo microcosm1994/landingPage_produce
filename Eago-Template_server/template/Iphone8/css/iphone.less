@@ -1,0 +1,420 @@
+html {
+  font-family: "Helvetica";
+}
+
+.header {
+  width: 100%;
+  height: 100px;
+  border-bottom: 1px solid #000;
+  .header-box {
+    width: 1366px;
+    height: 100%;
+    margin: 0 auto;
+    a {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+      margin-top: 25px;
+      vertical-align: top;
+      span {
+        display: block;
+        width: 50px;
+        height: 50px;
+      }
+    }
+    a:nth-child(1) {
+      span {
+        background: url(../img/1.png) no-repeat;
+        background-size: 100% 100%;
+        &:hover {
+          background: url(../img/1.1.png) no-repeat;
+          background-size: 100% 100%;
+        }
+      }
+    }
+    a:nth-child(2) {
+      margin-left: 60px;
+      span {
+        background: url(../img/2.png) no-repeat;
+        background-size: 100% 100%;
+        &:hover {
+          background: url(../img/2.1.png) no-repeat;
+          background-size: 100% 100%;
+        }
+      }
+    }
+    a:nth-child(3) {
+      width: 930px;
+      height: 80px;
+      margin-top: 10px;
+      background: url(../img/logo.svg) no-repeat;
+      background-size: 100% 100%;
+    }
+    a:nth-child(4) {
+      margin-left: 60px;
+      span {
+        background: url(../img/3.png) no-repeat;
+        background-size: 100% 100%;
+        display: inline-block;
+        &:hover {
+          background: url(../img/3.1.png) no-repeat;
+          background-size: 100% 100%;
+        }
+      }
+    }
+    a:nth-child(5) {
+      margin-left: 60px;
+      span {
+        background: url(../img/4.png) no-repeat;
+        background-size: 100% 100%;
+        &:hover {
+          background: url(../img/4.1.png) no-repeat;
+          background-size: 100% 100%;
+        }
+      }
+    }
+  }
+}
+
+.main {
+  width: 1100px;
+  margin: 0 auto;
+  padding-bottom: 50px;
+  h1 {
+    font-size: 48px;
+    line-height: 78px;
+    font-weight: 500;
+    width: 100%;
+    word-break: break-all;
+  }
+  .title {
+    width: 100%;
+    font-size: 28px;
+    font-weight: 600;
+    margin-top: 40px;
+  }
+  .banner {
+    margin-top: 20px;
+    width: 100%;
+    img {
+      width: 100%;
+    }
+  }
+  p {
+    font-size: 18px;
+    margin-top: 30px;
+    color: #000;
+    i {
+      font-style: italic;
+    }
+    a {
+      &:hover {
+        color: #1a356e;
+      }
+    }
+  }
+  .sub-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #000;
+    margin-top: 30px;
+  }
+  .content {
+    width: 100%;
+    background: #dedede;
+    padding: 40px 30px;
+    padding-top: 10px;
+    margin-top: 40px;
+  }
+  .button-box {
+    width: 100%;
+    margin-top: 80px;
+    .btn {
+      width: 178px;
+      height: 50px;
+      background: #c23030;
+      color: #fff;
+      text-align: center;
+      line-height: 50px;
+      border-radius: 5px;
+      font-size: 28px;
+      display: inline-block;
+      vertical-align: top;
+      cursor: pointer;
+    }
+    .btn-title {
+      display: inline-block;
+      vertical-align: top;
+      height: 50px;
+      line-height: 50px;
+      font-size: 28px;
+      margin-left: 40px;
+    }
+  }
+}
+
+.foot {
+  width: 100%;
+  height: 30px;
+  border-top: 1px solid #d9d9d9;
+  background: #f5f3f4;
+  .foot-box {
+    width: 450px;
+    height: 30px;
+    margin: 0 auto;
+    padding-top: 6px;
+    a {
+      display: inline-block;
+      vertical-align: top;
+      height: 18px;
+      padding-left: 18px;
+      padding-right: 18px;
+      line-height: 18px;
+      border-right: 1px solid #000;
+      font-size: 12px;
+    }
+    a:last-child {
+      border: none;
+    }
+  }
+}
+
+.go {
+  display: none;
+}
+
+.comment {
+  width: 500px;
+  border-radius: 5px;
+  position: fixed;
+  right: 50px;
+  bottom: 100px;
+  padding-left: 10px;
+  padding-right: 10px;
+  .swiper-container{
+    overflow: hidden;
+  }
+}
+
+.swiper-slide {
+  min-height: 100px;
+  height: auto;
+  overflow: hidden;
+  .comment-photo {
+    width: 50px;
+    height: 50px;
+    display: inline-block;
+    vertical-align: top;
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+  .comment-container {
+    width: 400px;
+    display: inline-block;
+    vertical-align: top;
+    .comment-time {
+      width: 100%;
+      height: 50px;
+      font-size: 18px;
+      color: #fff;
+      line-height: 50px;
+      padding-left: 20px;
+      display: block;
+    }
+    .comment-content {
+      width: 100%;
+      color: #fff;
+      font-size: 18px;
+      word-break: break-all;
+    }
+  }
+  .close {
+    display: block;
+    width: 20px;
+    height: 20px;
+    background: url(../img/comment-close.png) no-repeat;
+    background-size: 100% 100%;
+    position: absolute;
+    right: 32px;
+    top: 16px;
+    cursor: pointer;
+  }
+  .pulldown{
+    display: none;
+  }
+}
+@media screen and(max-width: 800px) {
+  .header {
+    width: 100%;
+    height: 100/75rem;
+    .header-box {
+      width: 750/75rem;
+      height: 100/75rem;
+      a {
+        width: 90/75rem;
+        height: 90/75rem;
+        margin-top: 5/75rem;
+        border-right: 1px solid #cdcdcd;
+        box-sizing: border-box;
+        padding: 15/75rem;
+        background-size: 50/75rem;
+        span {
+          width: 50/75rem;
+          height: 50/75rem;
+        }
+      }
+      a:nth-child(1) {
+        margin-left: 0/75rem;
+      }
+      a:nth-child(2) {
+        margin-left: 0/75rem;
+      }
+      a:nth-child(3) {
+        width: 450/75rem;
+        height: 80/75rem;
+        margin-top: 10/75rem;
+        padding: 0;
+      }
+      a:nth-child(4) {
+        display: none;
+        margin-left: 0/75rem;
+      }
+      a:nth-child(5) {
+        margin-left: 0/75rem;
+        border: none;
+      }
+    }
+  }
+
+  .main {
+    width: 750/75rem;
+    padding-bottom: 50/75rem;
+    padding-left: 24/75rem;
+    padding-right: 24/75rem;
+    h1 {
+      width: 100%;
+      font-size: 38/75rem;
+      line-height: 72/75rem;
+    }
+    .title {
+      font-size: 28/75rem;
+      margin-top: 50/75rem;
+    }
+    .banner {
+      width: 100%;
+      margin-top: 20/75rem;
+    }
+    p {
+      font-size: 28/75rem;
+      margin-top: 30/75rem;
+
+    }
+    .sub-title {
+      font-size: 28/75rem;
+      margin-top: 30/75rem;
+    }
+    .content {
+      padding: 30/775rem 24/75rem;
+      padding-top: 10/75rem;
+      margin-top: 50/75rem;
+    }
+    .button-box {
+      margin-top: 80/75rem;
+      .btn {
+        width: 162/75rem;
+        height: 45/75rem;
+        font-size: 28/75rem;
+        border-radius: 5/75rem;
+        line-height: 45/75rem;
+      }
+      .btn-title {
+        height: 45/75rem;
+        line-height: 45/75rem;
+        font-size: 28/75rem;
+        margin-left: 40/75rem;
+      }
+    }
+  }
+
+  .foot {
+    width: 100%;
+    height: 30/75rem;
+    .foot-box {
+      width: 100%;
+      height: 100%;
+      padding-top: 6/75rem;
+      text-align: center;
+      a {
+        height: 18/75rem;
+        padding-left: 18/75rem;
+        padding-right: 18/75rem;
+        line-height: 18/75rem;
+      }
+    }
+  }
+
+  .go {
+    width: 120/75rem;
+    height: 120/75rem;
+    overflow: hidden;
+    border-radius: 50%;
+    position: fixed;
+    bottom: 100/75rem;
+    right: 50/75rem;
+    display: block;
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .comment {
+    width: 600/75rem;
+    height: 50/75rem;
+    left: 10/75rem;
+    bottom: 50/75rem;
+  }
+
+  .swiper-slide {
+    min-height: 50/75rem;
+    height: 50/75rem;
+    max-height: 50/75rem;
+    border-radius: 50/75rem;
+    .comment-photo {
+      width: 50/75rem;
+      height: 50/75rem;
+      border-radius:50%;
+      overflow: hidden;
+    }
+    .comment-container {
+      width: 400/75rem;
+      .comment-time {
+        display: none;
+      }
+      .comment-content{
+        height: 50/75rem;
+        line-height: 50/75rem;
+        font-size: 18/75rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+    .close{
+      display: none;
+    }
+    .pulldown{
+      display: block;
+      width: 20px;
+      height: 20px;
+      background: url(../img/down.png) no-repeat;
+      background-size: 100% 100%;
+      position: absolute;
+      right: 15/75rem;
+      top: 15/75rem;
+      cursor: pointer;
+    }
+  }
+}
