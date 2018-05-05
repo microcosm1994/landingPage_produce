@@ -9,7 +9,8 @@ export default new vuex.Store({
     img: [],
     btn: [],
     link: [],
-    iframe: ''
+    iframe: '',
+    users: {}
   },
   mutations: {
     // 文字
@@ -31,6 +32,10 @@ export default new vuex.Store({
     // iframe链接
     setiframe (state, string) {
       state.iframe = string
+    },
+    // 用户数据
+    setusers (state, data) {
+      state.users = data
     }
   }
 })

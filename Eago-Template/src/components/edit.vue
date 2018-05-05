@@ -163,7 +163,7 @@
             type="info"
             :closable="false">
           </el-alert>
-          <el-button @click="revise_view(template)" type="primary">提交</el-button>
+          <el-button @click="dialogVisible = true" type="primary">保存</el-button>
         </el-collapse-item>
       </el-collapse>
     </div>
@@ -173,6 +173,23 @@
       </div>
       <el-button @click="deletedir()" type="primary">删除模板</el-button>
     </div>
+    <el-dialog
+      title="提示"
+      :visible.sync="dialogVisible"
+      width="30%">
+      <span>Your landingPage Name</span>
+      <div>
+        <el-input
+          placeholder="landingPage Name"
+          v-model="lander.name"
+          clearable>
+        </el-input>
+      </div>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisible = false" style="width: 40%;">取 消</el-button>
+    <el-button type="primary" @click="save()" style="width: 40%;margin-left: 65px;">确 定</el-button>
+  </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -200,6 +217,11 @@ export default {
       regexp_text: {
         text_before: '',
         text_after: ''
+      },
+      dialogVisible: false,
+      lander: {
+        name: '',
+        title: ''
       }
     }
   },
@@ -234,13 +256,6 @@ export default {
       this.template_url = this.$route.query.url
       this.template_url = 'http://' + this.template_url.slice(this.template_url.indexOf('demo.eago.world'), this.template_url.length)
       this.$store.commit('setiframe', this.template_url)
-    },
-    revise_view (template) {
-      this.$http.post('/api/file/revise_view', template).then((response) => {
-        if (response.data.status === 0) {
-          this.$refs.iframe.contentWindow.location.reload(true)
-        }
-      })
     },
     deletedir () {
       this.$http.get('/api/file/deletedir?name=' + this.template_name).then((response) => {
@@ -324,6 +339,17 @@ export default {
           this.$store.commit('setbtn', response.data.data.btn)
           this.$store.commit('setlink', response.data.data.link)
           this.init()
+        }
+      })
+    },
+    save () {
+      let data = {}
+      data.template_name = this.template_name
+      data.name = this.lander.name
+      this.$http.post('/api/file/save', data).then((response) => {
+        if (response.data.status === 0) {
+          this.dialogVisible = false
+          console.log(response.data)
         }
       })
     }

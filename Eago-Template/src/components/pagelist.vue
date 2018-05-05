@@ -81,11 +81,11 @@ export default {
     text-align: center;
     font-size: 50px;
     font-weight: 700;
-    color: #fff;
+    color: #333;
   }
 
   .card-container {
-    width: 80%;
+    width: 100%;
     margin: 0 auto;
   }
 
@@ -114,6 +114,11 @@ export default {
   .el-col-8 {
     height: 600px;
     margin-top: 50px;
+    width: 18%;
+    min-width: 300px;
+  }
+  .el-col-offset-2{
+    margin-left:60px;
   }
 
   .el-card {

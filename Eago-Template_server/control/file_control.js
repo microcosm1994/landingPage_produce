@@ -2,8 +2,18 @@ const fs = require('fs')
 const path = require('path')
 const cheerio = require('cheerio')
 const async = require('async')
+const OSS = require('ali-oss')
+const co = require('co');
+const Lander = require(path.join(__dirname, '../models/lander.js'))
+const Users = require(path.join(__dirname, '../models/user.js'))
 const template_url = '/home/demo.eago.world/template'
 const views_url = '/home/demo.eago.world/views'
+const client = new OSS({
+    region: 'oss-cn-hongkong',
+    accessKeyId: 'LTAIp9nawQ9RrKoh',
+    accessKeySecret: 'KbbO2NtCBYaDVu09vzXv3JkFFHHtYK',
+    bucket: 'lander'
+})
 
 exports.template_list = (req, res) => {
     let result = {
@@ -247,6 +257,53 @@ exports.revise_text = (req, res) =>{
     })
 }
 
+exports.save = (req, res) => {
+    let result = {
+        status: 0,
+        message: '文字修改成功'
+    }
+    let filename = req.body.template_name
+    let url = path.join(template_url, filename)
+    console.log(req.cookies)
+    uploadFload(path.join(url), function (pathname) {
+        let regexp = new RegExp(filename)
+        let address = pathname.replace(/\btemplate\b/, 'views')
+        let alname = address.replace(regexp, req.body.name)
+        if () {
+            
+        }
+        co(function* () {
+            let lander_result = yield client.put('/page/' + alname.substr(28), address)
+            console.log(lander_result)
+            let data = {
+                name: lander_result.name,
+                url: lander_result.url,
+                des: req.body.des,
+                type: req.body.type
+            }
+            Lander.create(data, (err, data) => {
+                if (err) throw err
+                if (data) {
+                    res.json(result)
+                } else {
+                    result.status = 1
+                    result.message = '服务器错误'
+                    res.json(result)
+                }
+            })
+            result.data = data
+            result.status = lander_result.res.status
+            res.json(result)
+        }).catch(function (err) {
+            if (err) {
+                res.status(503)
+                res.set('Content-Type', 'application/json charset=utf-8')
+                res.json(err)
+            }
+        })
+    })
+}
+
 /**
  * 复制文件夹
  * */
@@ -296,3 +353,16 @@ function deletedir(path) {
     }
 }
 
+/**
+ * 上传文件夹
+ * */
+function uploadFload(dir, callback) {
+    fs.readdirSync(dir).forEach(function (file) {
+        let pathname = path.join(dir, file)
+        if (fs.statSync(pathname).isDirectory()) {
+            uploadFload(pathname, callback)
+        } else {
+            callback(pathname)
+        }
+    })
+}
