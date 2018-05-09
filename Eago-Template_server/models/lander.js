@@ -3,7 +3,8 @@ const schema = mongose.Schema
 
 const lander = new schema({
     name: {
-        type: String
+        type: String,
+        unique: true
     },
     url: {
         type: String

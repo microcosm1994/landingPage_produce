@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="overflow: hidden;">
     <h1 style="margin: 150px auto;text-align: center;">{{title}}</h1>
     <div class="login">
       <el-input
@@ -28,6 +28,9 @@ export default {
       password: ''
     }
   },
+  mounted () {
+    this.remind()
+  },
   methods: {
     login () {
       let user = {}
@@ -35,9 +38,25 @@ export default {
       user.password = this.password
       this.$http.post('/api/account/login', user).then((response) => {
         if (response.data.status === 0) {
-          console.log(response.data)
+          this.$message(response.data.message)
+          this.$store.commit('setusers', response.data.data)
+          this.$cookies.set('_name', response.data.data.username, {
+            domain: 'demo.eago.world',
+            path: '/'
+          })
+          this.$router.push({path: '/home'})
         }
       })
+    },
+    remind: function () {
+      let id = this.$cookies.get('_id')
+      if (id) {
+        this.$message({
+          message: '检测到您已登陆',
+          type: 'success'
+        })
+        this.$router.push({path: './home'})
+      }
     }
   }
 }

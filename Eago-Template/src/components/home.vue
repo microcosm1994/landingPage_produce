@@ -2,7 +2,26 @@
   <div class="home">
     <div class="bg"></div>
     <div class="header">header</div>
-    <div class="sidebar">sidebar</div>
+    <div class="sidebar">
+      <el-col>
+        <el-menu
+          default-active="1"
+          class="el-menu-vertical-demo"
+          background-color="transparent"
+          text-color="#fff"
+          router="true"
+          active-text-color="#ffd04b">
+          <el-menu-item index="1" :route="{path: '/home'}">
+            <i class="el-icon-menu"></i>
+            <span slot="title">Template</span>
+          </el-menu-item>
+          <el-menu-item index="2" :route="{path: '/lander'}">
+            <i class="el-icon-document"></i>
+            <span slot="title">My lander</span>
+          </el-menu-item>
+        </el-menu>
+      </el-col>
+    </div>
     <div class="home-container">
       <div class="home-container-box">
         <router-view></router-view>
@@ -15,9 +34,11 @@
 export default {
   data () {
     return {
-      title: ''
+      title: '',
+      isCollapse: true
     }
-  }
+  },
+  methods: {}
 }
 </script>
 

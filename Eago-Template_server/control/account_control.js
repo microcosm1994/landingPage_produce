@@ -13,19 +13,18 @@ exports.login = (req, res) => {
     let user = req.body
     const hash = crypto.createHash('md5')
     user.password = hash.update(user.password).digest('hex')
-    console.log(user.password)
     User.findOne(user, (err, data) => {
         if (err) throw err
         if (data) {
             let id = data._id.toString()
             let expires = 10 * 24 * 60 * 60 * 1000
-            res.cookie('_id', id, {
+            res.cookie('sid', id, {
                 domain: 'demo.eago.world',
                 maxAge: expires,
                 path: '/'
             })
+            delete data.password
             result.data = data
-            delete result.data.password
             res.json(result)
         } else {
             result.status = 1
@@ -36,11 +35,14 @@ exports.login = (req, res) => {
 }
 
 exports.logout = (req, res) => {
-    let result = {
+    res.clearCookie('_id', {
+        domain: '.demo.eago.world',
+        path: '/'
+    })
+    res.json({
         status: 0,
-        message: '退出成功'
-    }
-
+        message: '已清除你的登录信息'
+    })
 }
 
 exports.register = (req, res) => {

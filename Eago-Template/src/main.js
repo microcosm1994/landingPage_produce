@@ -5,6 +5,7 @@ import router from './router'
 import axios from 'axios'
 import store from './store/index'
 import elementui from 'element-ui'
+import cookie from 'vue-cookies'
 import 'element-ui/lib/theme-chalk/index.css'
 import App from './App'
 import VueHtml5Editor from 'vue-html5-editor'
@@ -13,6 +14,7 @@ import 'font-awesome/css/font-awesome.min.css'
 Vue.config.productionTip = false
 Vue.prototype.$http = axios
 Vue.use(elementui)
+Vue.use(cookie)
 Vue.use(VueHtml5Editor, {
   // global component name
   name: 'vue-html5-editor',
@@ -138,5 +140,8 @@ new Vue({
   router,
   store,
   components: { App },
-  template: '<App/>'
+  template: '<App/>',
+  mounted () {
+    console.log(this.$cookies.get('_id'))
+  }
 })

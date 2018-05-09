@@ -4,6 +4,7 @@ import login from '@/components/login'
 import home from '@/components/home'
 import pagelist from '@/components/pagelist'
 import edit from '@/components/edit'
+import lander from '@/components/lander'
 
 Vue.use(Router)
 
@@ -28,6 +29,11 @@ export default new Router({
           path: '/edit',
           name: 'edit',
           component: edit
+        },
+        {
+          path: '/lander',
+          name: 'lander',
+          component: lander
         }
       ]
     }

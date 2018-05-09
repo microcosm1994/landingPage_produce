@@ -260,47 +260,99 @@ exports.revise_text = (req, res) =>{
 exports.save = (req, res) => {
     let result = {
         status: 0,
-        message: '文字修改成功'
+        message: 'Save successfully'
     }
     let filename = req.body.template_name
     let url = path.join(template_url, filename)
-    console.log(req.cookies)
-    uploadFload(path.join(url), function (pathname) {
-        let regexp = new RegExp(filename)
-        let address = pathname.replace(/\btemplate\b/, 'views')
-        let alname = address.replace(regexp, req.body.name)
-        if () {
-            
-        }
-        co(function* () {
-            let lander_result = yield client.put('/page/' + alname.substr(28), address)
-            console.log(lander_result)
-            let data = {
-                name: lander_result.name,
-                url: lander_result.url,
-                des: req.body.des,
-                type: req.body.type
-            }
-            Lander.create(data, (err, data) => {
+    async.auto({
+        func1: function (callback) {
+            Lander.find({'name': req.body.name}, (err, data) => {
+                if (err) throw err
+                console.log(data)
+                console.log(data.length)
+                if (data.length > 0) {
+                    result.status = 1
+                    result.message = 'The name has been occupied'
+                    res.json(result)
+                } else {
+                    callback(null)
+                }
+            })
+        },
+        func2: ['func1', function (results, callback) {
+            uploadFload(path.join(url), function (pathname) {
+                let regexp = new RegExp(filename)
+                let address = pathname.replace(/\btemplate\b/, 'views')
+                let alname = address.replace(regexp, req.body.name)
+                co(function* () {
+                    let lander_result = yield client.put('/page/' + alname.substr(28), address)
+                    if (alname.indexOf('index.html') != -1) {
+                        let lander = {}
+                        lander.name = req.body.name
+                        lander.url = lander_result.url
+                        callback(null, lander)
+                    }
+                }).catch(function (err) {
+                    if (err) {
+                        res.status(503)
+                        res.set('Content-Type', 'application/json charset=utf-8')
+                        res.json(err)
+                    }
+                })
+            })
+        }],
+        func3: ['func2', function (results, callback) {
+            Lander.create(results.func2, (err, data) => {
                 if (err) throw err
                 if (data) {
-                    res.json(result)
+                    result.data = results.func2
+                    callback(null, result)
                 } else {
                     result.status = 1
                     result.message = '服务器错误'
-                    res.json(result)
+                    callback(null, result)
                 }
             })
-            result.data = data
-            result.status = lander_result.res.status
-            res.json(result)
-        }).catch(function (err) {
-            if (err) {
-                res.status(503)
-                res.set('Content-Type', 'application/json charset=utf-8')
-                res.json(err)
-            }
-        })
+        }]
+    }, function (err, results) {
+        if (err) throw err
+        res.json(results.func3)
+    })
+}
+
+exports.download = (req, res) => {
+    let result = {
+        status: 0,
+        message: '下载成功'
+    }
+    let filename = req.query.filename
+    Lander.find({'name': filename}, (err, data) => {
+        if (err) throw err
+        if (data.length > 0) {
+            co(function* () {
+                let result = yield client.list({
+                    prefix: 'page/' + filename
+                })
+                for (let i = 0; i < result.objects.length; i++) {
+                    let address = result.objects[i].name.replace(/page/, '/home/demo.eago.world/dowmload')
+                    console.log(result.objects[i].name)
+                    console.log(address)
+                    fs.statSync(address).isDirectory()
+                    // if (fs.statSync(pathname).isDirectory()){
+                    //
+                    // }
+                    // var streamresult = yield client.getStream(result.objects[i].name)
+                    // var writeStream = fs.createWriteStream(address)
+                    // streamresult.stream.pipe(writeStream)
+                }
+            }).catch(function (err) {
+                if (err) {
+                    res.status(503)
+                    res.set('Content-Type', 'application/json charset=utf-8')
+                    res.json(err)
+                }
+            })
+        }
     })
 }
 

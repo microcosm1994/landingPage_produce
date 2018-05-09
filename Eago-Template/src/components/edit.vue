@@ -137,15 +137,17 @@
           </div>
           <div style="width: 102%;overflow:auto;padding-left: 10px;padding-right: 25px;box-sizing: border-box" v-if="this.mylink">
             <h2>link</h2>
-            <el-input
-              v-for="(item, index) in this.mylink"
-              :key="index"
-              type="textarea"
-              :rows="2"
-              placeholder="请输入内容"
-              :blur="onlinkChange(template.link[index], index)"
-              v-model="template.link[index]">
-            </el-input>
+            <div v-for="(item, index) in this.mylink"
+                 :key="index">
+              <el-input
+                type="textarea"
+                :rows="2"
+                placeholder="请输入内容"
+                style="width:70%;"
+                v-model="template.link[index]">
+              </el-input>
+              <el-button style="width: 15%;margin-left: 30px;" type="primary" @click="onlinkChange(template.link[index], index)">save</el-button>
+            </div>
           </div>
           <div style="width: 102%;overflow:auto;padding-left: 10px;padding-right: 25px;box-sizing: border-box" v-if="this.mybtn">
             <h2>button</h2>
@@ -346,12 +348,19 @@ export default {
       let data = {}
       data.template_name = this.template_name
       data.name = this.lander.name
-      this.$http.post('/api/file/save', data).then((response) => {
-        if (response.data.status === 0) {
-          this.dialogVisible = false
-          console.log(response.data)
-        }
-      })
+      if (data.name.length > 0) {
+        this.$http.post('/api/file/save', data).then((response) => {
+          if (response.data.status === 0) {
+            this.dialogVisible = false
+            this.lander.name = ''
+            this.$message(response.data.message)
+          } else {
+            this.$message(response.data.message)
+          }
+        })
+      } else {
+        this.$message('Names can\'t be empty.')
+      }
     }
   }
 }
