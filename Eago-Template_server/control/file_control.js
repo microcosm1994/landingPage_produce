@@ -8,6 +8,8 @@ const Lander = require(path.join(__dirname, '../models/lander.js'))
 const Users = require(path.join(__dirname, '../models/user.js'))
 const template_url = '/home/demo.eago.world/template'
 const views_url = '/home/demo.eago.world/views'
+const archiver = require('archiver')
+const archive = archiver('zip')
 const client = new OSS({
     region: 'oss-cn-hongkong',
     accessKeyId: 'LTAIp9nawQ9RrKoh',
@@ -268,8 +270,6 @@ exports.save = (req, res) => {
         func1: function (callback) {
             Lander.find({'name': req.body.name}, (err, data) => {
                 if (err) throw err
-                console.log(data)
-                console.log(data.length)
                 if (data.length > 0) {
                     result.status = 1
                     result.message = 'The name has been occupied'
@@ -320,40 +320,95 @@ exports.save = (req, res) => {
     })
 }
 
-exports.download = (req, res) => {
-    let result = {
+exports.zip = (req, res) => {
+    let resultdata = {
         status: 0,
-        message: '下载成功'
+        message: '文件已经打包成功'
     }
     let filename = req.query.filename
     Lander.find({'name': filename}, (err, data) => {
         if (err) throw err
         if (data.length > 0) {
-            co(function* () {
-                let result = yield client.list({
-                    prefix: 'page/' + filename
-                })
-                for (let i = 0; i < result.objects.length; i++) {
-                    let address = result.objects[i].name.replace(/page/, '/home/demo.eago.world/dowmload')
-                    console.log(result.objects[i].name)
-                    console.log(address)
-                    fs.statSync(address).isDirectory()
-                    // if (fs.statSync(pathname).isDirectory()){
-                    //
-                    // }
-                    // var streamresult = yield client.getStream(result.objects[i].name)
-                    // var writeStream = fs.createWriteStream(address)
-                    // streamresult.stream.pipe(writeStream)
-                }
-            }).catch(function (err) {
-                if (err) {
-                    res.status(503)
-                    res.set('Content-Type', 'application/json charset=utf-8')
-                    res.json(err)
-                }
+            async.auto({
+                func1: function(callback){
+                    let floder = [filename, filename + '/css', filename + '/img', filename + '/lib']
+                    for (let k = 0; k < floder.length; k++) {
+                        mkdir('/home/demo.eago.world/dowmload/' + floder[k])
+                        if (k === floder.length-1) {
+                            callback(null)
+                        }
+                    }
+                },
+                func2: ['func1', function (results, callback) {
+                    co(function* () {
+                        let result = yield client.list({
+                            prefix: 'page/' + filename
+                        })
+                        if (result) {
+                            callback(null, result)
+                        }
+                    }).catch(function (err) {
+                        if (err) {
+                            res.status(503)
+                            res.set('Content-Type', 'application/json charset=utf-8')
+                            res.json(err)
+                        }
+                    })
+                }],
+                func3: ['func2', function (results, callback) {
+                    results.func2.objects.forEach(function (file) {
+                        let address = file.name.replace(/page/, '/home/demo.eago.world/dowmload')
+                        co(function* () {
+                            let streamresult = yield client.getStream(file.name)
+                            let writeStream = fs.createWriteStream(address)
+                            streamresult.stream.pipe(writeStream)
+                        }).catch(function (err) {
+                            if (err) {
+                                res.status(503)
+                                res.set('Content-Type', 'application/json charset=utf-8')
+                                res.json(err)
+                            }
+                        })
+                    })
+                    callback(null, '/home/demo.eago.world/dowmload/' + filename)
+                }],
+                func4: ['func3', function (results, callback) {
+                    const output = fs.createWriteStream(results.func3 + '.zip')
+
+                    console.log(path.join(__dirname, results.func3));
+                    archive.bulk([
+                        {
+                            src: ['**'],
+                            cwd: results.func3 + '/',
+                            expand: true
+                        }
+                    ]);
+                    archive.on('end', function(a){
+                        //压缩完毕生成文件
+                        console.log(a)
+                        callback(null, a)
+                    });
+                    archive.pipe(output)
+                    archive.finalize()
+                }]
+            }, function (err, results) {
+                if (err) throw err
+                res.json(resultdata)
             })
+        } else {
+            resultdata.status = 1
+            resultdata.message = '数据库中没有这个文件，无法提供下载'
+            res.json(resultdata)
         }
     })
+}
+
+exports.download = (req, res) => {
+    let resultdata = {
+        status: 0,
+        message: '下载成功'
+    }
+
 }
 
 /**
@@ -409,6 +464,20 @@ function deletedir(path) {
  * 上传文件夹
  * */
 function uploadFload(dir, callback) {
+    fs.readdirSync(dir).forEach(function (file) {
+        let pathname = path.join(dir, file)
+        if (fs.statSync(pathname).isDirectory()) {
+            uploadFload(pathname, callback)
+        } else {
+            callback(pathname)
+        }
+    })
+}
+
+/**
+ * 下载文件夹
+ * */
+function downloadFload(dir, callback) {
     fs.readdirSync(dir).forEach(function (file) {
         let pathname = path.join(dir, file)
         if (fs.statSync(pathname).isDirectory()) {
