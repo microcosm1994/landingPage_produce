@@ -9,7 +9,6 @@ const Users = require(path.join(__dirname, '../models/user.js'))
 const template_url = '/home/demo.eago.world/template'
 const views_url = '/home/demo.eago.world/views'
 const archiver = require('archiver')
-const archive = archiver('zip')
 const client = new OSS({
     region: 'oss-cn-hongkong',
     accessKeyId: 'LTAIp9nawQ9RrKoh',
@@ -280,6 +279,19 @@ exports.save = (req, res) => {
             })
         },
         func2: ['func1', function (results, callback) {
+            Users.findById(req.body._id, (err, data) => {
+                if (err) throw err
+                if (data) {
+                    console.log(data)
+                    callback(null, data)
+                } else {
+                    result.status = 1
+                    result.message = 'No user data found. Please log in again.'
+                    res.json(result)
+                }
+            })
+        }],
+        func3: ['func2', function (results, callback) {
             uploadFload(path.join(url), function (pathname) {
                 let regexp = new RegExp(filename)
                 let address = pathname.replace(/\btemplate\b/, 'views')
@@ -290,6 +302,7 @@ exports.save = (req, res) => {
                         let lander = {}
                         lander.name = req.body.name
                         lander.url = lander_result.url
+                        lander.users = results.func2
                         callback(null, lander)
                     }
                 }).catch(function (err) {
@@ -300,23 +313,20 @@ exports.save = (req, res) => {
                     }
                 })
             })
-        }],
-        func3: ['func2', function (results, callback) {
-            Lander.create(results.func2, (err, data) => {
-                if (err) throw err
-                if (data) {
-                    result.data = results.func2
-                    callback(null, result)
-                } else {
-                    result.status = 1
-                    result.message = '服务器错误'
-                    callback(null, result)
-                }
-            })
         }]
     }, function (err, results) {
         if (err) throw err
-        res.json(results.func3)
+        Lander.create(results.func3, (err, data) => {
+            if (err) throw err
+            if (data) {
+                result.data = results.func3
+                res.json(result)
+            } else {
+                result.status = 1
+                result.message = '服务器错误'
+                res.json(result)
+            }
+        })
     })
 }
 
@@ -331,13 +341,14 @@ exports.zip = (req, res) => {
         if (data.length > 0) {
             async.auto({
                 func1: function(callback){
-                    let floder = [filename, filename + '/css', filename + '/img', filename + '/lib']
-                    for (let k = 0; k < floder.length; k++) {
-                        mkdir('/home/demo.eago.world/dowmload/' + floder[k])
-                        if (k === floder.length-1) {
-                            callback(null)
-                        }
-                    }
+                    let floder = [filename, filename + '/css', filename + '/img', filename + '/lib', filename + '/.idea']
+                    async.each(floder, function (file, callback) {
+                        mkdir('/home/demo.eago.world/dowmload/' + file)
+                        callback(null)
+                    }, function (err) {
+                        if (err) throw err
+                        callback(null)
+                    })
                 },
                 func2: ['func1', function (results, callback) {
                     co(function* () {
@@ -347,21 +358,18 @@ exports.zip = (req, res) => {
                         if (result) {
                             callback(null, result)
                         }
-                    }).catch(function (err) {
-                        if (err) {
-                            res.status(503)
-                            res.set('Content-Type', 'application/json charset=utf-8')
-                            res.json(err)
-                        }
-                    })
+                    }).catch(function (err) {})
                 }],
                 func3: ['func2', function (results, callback) {
-                    results.func2.objects.forEach(function (file) {
+                    let zipFilename = []
+                    async.each(results.func2.objects, function (file, callback) {
                         let address = file.name.replace(/page/, '/home/demo.eago.world/dowmload')
+                        zipFilename.push(address)
                         co(function* () {
                             let streamresult = yield client.getStream(file.name)
                             let writeStream = fs.createWriteStream(address)
                             streamresult.stream.pipe(writeStream)
+                            callback(null)
                         }).catch(function (err) {
                             if (err) {
                                 res.status(503)
@@ -369,27 +377,10 @@ exports.zip = (req, res) => {
                                 res.json(err)
                             }
                         })
+                    }, function (err) {
+                        if(err) throw err
+                        callback(null, zipFilename)
                     })
-                    callback(null, '/home/demo.eago.world/dowmload/' + filename)
-                }],
-                func4: ['func3', function (results, callback) {
-                    const output = fs.createWriteStream(results.func3 + '.zip')
-
-                    console.log(path.join(__dirname, results.func3));
-                    archive.bulk([
-                        {
-                            src: ['**'],
-                            cwd: results.func3 + '/',
-                            expand: true
-                        }
-                    ]);
-                    archive.on('end', function(a){
-                        //压缩完毕生成文件
-                        console.log(a)
-                        callback(null, a)
-                    });
-                    archive.pipe(output)
-                    archive.finalize()
                 }]
             }, function (err, results) {
                 if (err) throw err
@@ -408,7 +399,59 @@ exports.download = (req, res) => {
         status: 0,
         message: '下载成功'
     }
+    let filename = req.query.filename
+    async.auto({
+        func1: function (callback) {
+            const output = fs.createWriteStream('/home/demo.eago.world/dowmload/' + filename + '.zip')
+            const archive = archiver('zip')
+            archive.pipe(output)
+            archive.bulk([
+                {
+                    cwd:'/home/demo.eago.world/dowmload/' + filename,    //设置相对路径
+                    src: ['*'],
+                    expand: true
+                }
+            ]);
+            archive.finalize()
+            callback(null)
+        },
+        func2: ['func1', function (results, callback) {
+            console.log('ok')
+            callback(null)
+        }]
+    }, function (err, results) {
+        if (err) throw err
+        res.json(resultdata)
+    })
+}
 
+exports.mylander = (req, res) => {
+    let result = {
+        status: 0,
+        message: '获取成功'
+    }
+    Lander.count({'users.username': req.query.username}, (err, data) => {
+        if (err) throw err
+        if (data) {
+            let cont = data
+            Lander.find({'users.username': req.query.username}, (err, data) => {
+                if (err) throw err
+                if (data.length > 0) {
+                    result.data = data
+                    result.count = cont
+                    res.json(result)
+                } else {
+                    result.status = 1
+                    result.message = 'Not found lander'
+                    res.json(result)
+                }
+            }).skip((req.query.page - 1) * req.query.size).limit(req.query.size - 0)
+        } else {
+            result.status = 1
+            result.message = '没有找到相关数据'
+            res.json(result)
+        }
+    })
 }
 
 /**

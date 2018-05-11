@@ -10,7 +10,8 @@ export default new vuex.Store({
     btn: [],
     link: [],
     iframe: '',
-    users: {}
+    users: {},
+    mylander: []
   },
   mutations: {
     // 文字
@@ -36,6 +37,10 @@ export default new vuex.Store({
     // 用户数据
     setusers (state, data) {
       state.users = data
+    },
+    // 用户lander列表
+    setmylander (state, array) {
+      state.mylander = array
     }
   }
 })

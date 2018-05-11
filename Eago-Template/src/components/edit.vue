@@ -348,6 +348,7 @@ export default {
       let data = {}
       data.template_name = this.template_name
       data.name = this.lander.name
+      data._id = this.$cookies.get('_id')
       if (data.name.length > 0) {
         this.$http.post('/api/file/save', data).then((response) => {
           if (response.data.status === 0) {
