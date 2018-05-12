@@ -1,11 +1,11 @@
 <template>
   <div class="home">
     <div class="bg"></div>
-    <div class="header">header</div>
+    <div class="header"></div>
     <div class="sidebar">
       <el-col>
         <el-menu
-          default-active="1"
+          :default-active="this.active"
           class="el-menu-vertical-demo"
           background-color="transparent"
           text-color="#fff"
@@ -18,6 +18,15 @@
           <el-menu-item index="2" :route="{path: '/lander'}">
             <i class="el-icon-document"></i>
             <span slot="title">My lander</span>
+          </el-menu-item>
+          <el-menu-item index="3" :route="{path: '/register'}"
+          :disabled="this.dissabled">
+            <i class="el-icon-plus"></i>
+            <span slot="title">Generating account</span>
+          </el-menu-item>
+          <el-menu-item index="4" :route="{path: '/users'}">
+            <i class="el-icon-tickets"></i>
+            <span slot="title">User list</span>
           </el-menu-item>
         </el-menu>
       </el-col>
@@ -35,7 +44,30 @@ export default {
   data () {
     return {
       title: '',
-      isCollapse: true
+      isCollapse: true,
+      active: '',
+      activeIndex: 1,
+      dissabled: false
+    }
+  },
+  mounted () {
+    if (this.$cookies.get('_name') === 'admin') {
+      this.dissabled = true
+    }
+    if (this.$route.path === '/home') {
+      this.active = '1'
+    }
+    if (this.$route.path === '/lander') {
+      this.active = '2'
+    }
+    if (this.$route.path === '/register') {
+      this.active = '3'
+    }
+    if (this.$route.path === '/users') {
+      this.active = '4'
+    }
+    if (this.$route.params.active) {
+      this.active = '4'
     }
   },
   methods: {}

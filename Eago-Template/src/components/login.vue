@@ -3,7 +3,7 @@
     <h1 style="margin: 150px auto;text-align: center;">{{title}}</h1>
     <div class="login">
       <el-input
-        placeholder="account"
+        placeholder="username"
         v-model="username"
         clearable>
       </el-input>
@@ -13,7 +13,7 @@
         type="password"
         clearable>
       </el-input>
-      <el-button type="primary" @click="login">登陆</el-button>
+      <el-button type="primary" @click="login">login</el-button>
     </div>
   </div>
 </template>
@@ -73,7 +73,7 @@ export default {
     height:40px;
     margin-top:4px;
   }
-  .el-button{
+  .login .el-button{
     width: 100%;
     margin-top: 30px;
   }

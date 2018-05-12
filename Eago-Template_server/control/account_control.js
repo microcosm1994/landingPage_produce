@@ -41,15 +41,63 @@ exports.logout = (req, res) => {
     })
     res.json({
         status: 0,
-        message: '已清除你的登录信息'
+        message: 'Have cleared your login information'
     })
 }
 
 exports.register = (req, res) => {
     let result = {
         status: 0,
-        message: '注册成功'
+        message: 'register was successful'
     }
+    let requser = req.body
+    const hash = crypto.createHash('md5')
+    requser.password = hash.update(requser.password).digest('hex')
+    User.find({'username': requser.username}, (err, data) => {
+        if (err) throw err
+        if (data.length > 0) {
+            result.status = 1
+            result.message = 'The username has been used'
+            res.json(result)
+        } else {
+            User.create(requser, (err, data) => {
+                if (err) throw err
+                if (data) {
+                    res.json(result)
+                } else {
+                    result.status = 1
+                    result.message = 'Server error'
+                    res.json(result)
+                }
+            })
+        }
+    })
+}
+
+exports.all = (req, res) => {
+    User.count({}, (err, data) => {
+        if (err) throw err
+        if (data) {
+            let result = {
+                status: 0,
+                message: 'There are ' + data + 'users in all'
+            }
+            result.count = data
+            User.find({}, (err, data) => {
+                if (err) throw err
+                if (data) {
+                    result.data = data
+                    res.json(result)
+                }
+            })
+        }else{
+            let result = {
+                status: 1,
+                message: 'There are ' + 0 + 'users in all'
+            }
+            res.json(result)
+        }
+    })
 }
 
 exports.revise = (req, res) => {

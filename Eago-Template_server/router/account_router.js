@@ -11,6 +11,7 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 router.post('/login', jsonParser, account_control.login)
 router.get('/logout', jsonParser, account_control.logout)
+router.get('/all', jsonParser, account_control.all)
 router.post('/register', jsonParser, account_control.register)
 router.post('/revise', jsonParser, account_control.revise)
 router.post('/delete', jsonParser, account_control.delete)

@@ -5,6 +5,8 @@ import home from '@/components/home'
 import pagelist from '@/components/pagelist'
 import edit from '@/components/edit'
 import lander from '@/components/lander'
+import register from '@/components/register'
+import users from '@/components/users'
 
 Vue.use(Router)
 
@@ -34,6 +36,16 @@ export default new Router({
           path: '/lander',
           name: 'lander',
           component: lander
+        },
+        {
+          path: '/register',
+          name: 'register',
+          component: register
+        },
+        {
+          path: '/users',
+          name: 'users',
+          component: users
         }
       ]
     }

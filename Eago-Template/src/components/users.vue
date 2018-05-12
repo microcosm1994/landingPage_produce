@@ -1,7 +1,7 @@
 <template>
-  <div style="width: 100%">
+  <div style="width: 100%;">
     <el-table
-      :data="this.mylander"
+      :data="this.users"
       style="width: 90%;">
       <el-table-column
         label="date"
@@ -12,21 +12,36 @@
         </template>
       </el-table-column>
       <el-table-column
-        label="landerName">
+        label="Head portrait"
+        width="160">
         <template slot-scope="scope">
-          <span style="margin-left: 10px">{{ scope.row.name }}</span>
+          <img :src="scope.row.portrait" alt="">
+        </template>
+      </el-table-column>
+      <el-table-column
+        label="NickName">
+        <template slot-scope="scope">
+          <span style="margin-left: 10px">{{ scope.row.nickname }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+        label="UserName">
+        <template slot-scope="scope">
+          <span style="margin-left: 10px">{{ scope.row.username }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+        label="type">
+        <template slot-scope="scope">
+          <span style="margin-left: 10px">{{ scope.row.type }}</span>
         </template>
       </el-table-column>
       <el-table-column label="operate">
         <template slot-scope="scope">
           <el-button
             size="mini"
-            icon="el-icon-view"
-            @click="handleEdit(scope.$index, scope.row.url)"> </el-button>
-          <el-button
-            size="mini"
-            icon="el-icon-download"
-            @click="handleDownload(scope.$index, scope.row.name)"> </el-button>
+            icon="el-icon-edit"
+            @click="handleEdit(scope.$index, scope.row._id)"> </el-button>
           <el-button
             size="mini"
             type="danger"
@@ -60,44 +75,24 @@
     </el-dialog>
   </div>
 </template>
-
 <script>
 export default {
-  name: 'lander',
+  name: 'users',
   data () {
     return {
-      title: 'sss',
-      currentPage: 1,
-      pagesize: 10,
-      total: '',
-      dialogVisible: false,
-      steps: 1
+      titile: '',
+      users: []
     }
   },
-  computed: {
-    mylander () {
-      return this.$store.state.mylander
-    }
-  },
+  computed: {},
   mounted () {
-    this.getlander(this.$cookies.get('_name'), this.currentPage, this.pagesize)
+    this.getusers()
   },
   methods: {
-    getlander (username, page, size) {
-      this.$http.get('/api/file/mylander?username=' + username + '&page=' + page + '&size=' + size).then((response) => {
-        this.$store.commit('setmylander', response.data.data)
-        this.total = response.data.count - 0
-      })
-    },
-    handleEdit (index, row) {
-      window.open(row, '_blank', 'width=375,height=700,menubar=no,toolbar=no,status=no,scrollbars=yes')
-    },
-    handleDownload (index, val) {
-      this.dialogVisible = true
-      this.$http.get('/api/file/zip?filename=' + val).then((response) => {
+    getusers () {
+      this.$http.get('/api/account/all').then((response) => {
         if (response.data.status === 0) {
-          this.steps = 2
-          this.dialogVisible = false
+          this.users = response.data.data
         } else {
           this.$message({
             message: response.data.message,
@@ -105,26 +100,17 @@ export default {
           })
         }
       })
-    },
-    handleDelete (index, row) {
-      console.log(index, row)
-    },
-    // 改变每页显示条数时触发
-    handleSizeChange (val) {
-      this.pagesize = val
-      this.getlander(this.$cookies.get('_name'), this.currentPage, val)
-    },
-    // 改变页数时触发
-    handleCurrentChange (val) {
-      this.currentPage = val
-      this.getlander(this.$cookies.get('_name'), val, this.pagesize)
     }
   }
 }
 </script>
-
 <style>
   .cell{
     text-align: center;
+  }
+  .cell img{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
   }
 </style>
