@@ -11,7 +11,10 @@ export default new vuex.Store({
     link: [],
     iframe: '',
     users: {},
-    mylander: []
+    mylander: [],
+    mylander_count: 0,
+    users_count: 0,
+    loginstatus: false
   },
   mutations: {
     // 文字
@@ -41,6 +44,18 @@ export default new vuex.Store({
     // 用户lander列表
     setmylander (state, array) {
       state.mylander = array
+    },
+    // 用户lander总数
+    setmylander_count (state, number) {
+      state.mylander_count = number
+    },
+    // 用户总数
+    setusers_count (state, number) {
+      state.users_count = number
+    },
+    // 用户登录状态
+    setloginstatus (state, boolean) {
+      state.loginstatus = boolean
     }
   }
 })

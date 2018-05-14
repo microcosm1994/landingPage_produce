@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import store from '@/store'
 import login from '@/components/login'
 import home from '@/components/home'
 import pagelist from '@/components/pagelist'
@@ -10,7 +11,7 @@ import users from '@/components/users'
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   routes: [
     {
       path: '/',
@@ -51,3 +52,18 @@ export default new Router({
     }
   ]
 })
+router.afterEach((to, from, next) => {
+  console.log(store)
+  let loginstatus = store.state.loginstatus
+  let username = store.state.users.username
+  if (!loginstatus) {
+    router.push({name: 'login'})
+  } else {
+    if (username !== 'admin') {
+      if (to.name === 'register' || to.name === 'users') {
+        router.push({path: from.path})
+      }
+    }
+  }
+})
+export default router

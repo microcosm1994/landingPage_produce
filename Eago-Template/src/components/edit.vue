@@ -354,9 +354,16 @@ export default {
           if (response.data.status === 0) {
             this.dialogVisible = false
             this.lander.name = ''
-            this.$message(response.data.message)
+            this.$message({
+              message: response.data.message,
+              type: 'success'
+            })
+            this.$router.push({name: 'pagelist'})
           } else {
-            this.$message(response.data.message)
+            this.$message({
+              message: response.data.message,
+              type: 'error'
+            })
           }
         })
       } else {

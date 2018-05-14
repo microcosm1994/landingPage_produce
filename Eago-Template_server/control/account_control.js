@@ -1,6 +1,5 @@
 const fs = require('fs')
 const path = require('path')
-const cheerio = require('cheerio')
 const async = require('async')
 const crypto = require('crypto')
 const User = require(path.join(__dirname, '../models/user.js'))
@@ -18,7 +17,7 @@ exports.login = (req, res) => {
         if (data) {
             let id = data._id.toString()
             let expires = 10 * 24 * 60 * 60 * 1000
-            res.cookie('sid', id, {
+            res.cookie('_id', id, {
                 domain: 'demo.eago.world',
                 maxAge: expires,
                 path: '/'
@@ -89,12 +88,32 @@ exports.all = (req, res) => {
                     result.data = data
                     res.json(result)
                 }
-            })
+            }).skip((req.query.page - 1) * req.query.size).limit(req.query.size - 0)
         }else{
             let result = {
                 status: 1,
+                count: 0,
                 message: 'There are ' + 0 + 'users in all'
             }
+            res.json(result)
+        }
+    })
+}
+
+exports.user = (req, res) => {
+    let result = {
+        status: 0,
+        message: 'Access to user information success'
+    }
+    User.findById({'_id': req.query._id}, (err, data) => {
+        if (err) throw err
+        if (data) {
+            delete data.password
+            result.data = data
+            res.json(result)
+        } else {
+            result.status = 1
+            result.message = 'Access to user information failure'
             res.json(result)
         }
     })

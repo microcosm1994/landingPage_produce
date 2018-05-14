@@ -142,6 +142,20 @@ new Vue({
   components: { App },
   template: '<App/>',
   mounted () {
-    console.log(this.$cookies.get('_id'))
+    if (this.$cookies.get('_id')) {
+      this.$store.commit('setloginstatus', true)
+      this.$http.get('/api/account/user?_id=' + this.$cookies.get('_id')).then((response) => {
+        this.$cookies.set('_name', response.data.data.username, {
+          domain: 'demo.eago.world',
+          path: '/'
+        })
+        if (response.data.status === 0) {
+          this.$store.commit('setusers', response.data.data)
+        }
+      })
+    } else {
+      this.$store.commit('setloginstatus', false)
+      this.$router.push({name: 'login'})
+    }
   }
 })

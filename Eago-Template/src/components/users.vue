@@ -58,20 +58,14 @@
       :page-sizes="[10, 20, 30, 50]"
       :page-size="this.pagesize"
       layout="total, sizes, prev, pager, next, jumper"
-      :total="this.total">
+      :total="this.userscount">
     </el-pagination>
     <el-dialog
-      title="loading"
       :visible.sync="dialogVisible"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :show-close="false"
       width="50%">
-      <el-steps :active="this.steps" align-center>
-        <el-step title="Connecting the server" ></el-step>
-        <el-step title="Packing project"></el-step>
-        <el-step title="Downloaded to local"></el-step>
-      </el-steps>
     </el-dialog>
   </div>
 </template>
@@ -81,18 +75,27 @@ export default {
   data () {
     return {
       titile: '',
-      users: []
+      users: [],
+      currentPage: 1,
+      total: '',
+      pagesize: 10,
+      dialogVisible: false
     }
   },
-  computed: {},
+  computed: {
+    userscount () {
+      return this.$store.state.userscount
+    }
+  },
   mounted () {
-    this.getusers()
+    this.getusers(this.currentPage, this.pagesize)
   },
   methods: {
-    getusers () {
-      this.$http.get('/api/account/all').then((response) => {
+    getusers (page, size) {
+      this.$http.get('/api/account/all?page=' + page + '&size=' + size).then((response) => {
         if (response.data.status === 0) {
           this.users = response.data.data
+          this.$store.commit('setusers_count', response.data.count)
         } else {
           this.$message({
             message: response.data.message,
@@ -100,6 +103,16 @@ export default {
           })
         }
       })
+    },
+    // 改变每页显示条数时触发
+    handleSizeChange (val) {
+      this.pagesize = val
+      this.getusers(this.currentPage, val)
+    },
+    // 改变页数时触发
+    handleCurrentChange (val) {
+      this.currentPage = val
+      this.getusers(val, this.pagesize)
     }
   }
 }

@@ -18,6 +18,8 @@ router.post('/revise_text', jsonParser, file_control.revise_text)
 router.post('/save', jsonParser, file_control.save)
 router.get('/mylander', jsonParser, file_control.mylander)
 router.get('/zip', jsonParser, file_control.zip)
-router.get('/download', jsonParser, file_control.download)
+router.get('/clear', jsonParser, file_control.clear)
+router.get('/deletelander', jsonParser, file_control.deletelander)
+router.post('/download', jsonParser, file_control.download)
 
 module.exports = router

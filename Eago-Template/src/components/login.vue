@@ -13,7 +13,7 @@
         type="password"
         clearable>
       </el-input>
-      <el-button type="primary" @click="login">login</el-button>
+      <el-button type="primary" @click="login">sign in</el-button>
     </div>
   </div>
 </template>
@@ -40,6 +40,7 @@ export default {
         if (response.data.status === 0) {
           this.$message(response.data.message)
           this.$store.commit('setusers', response.data.data)
+          this.$store.commit('setloginstatus', true)
           this.$cookies.set('_name', response.data.data.username, {
             domain: 'demo.eago.world',
             path: '/'
@@ -51,6 +52,7 @@ export default {
     remind: function () {
       let id = this.$cookies.get('_id')
       if (id) {
+        this.$store.commit('setloginstatus', true)
         this.$message({
           message: '检测到您已登陆',
           type: 'success'

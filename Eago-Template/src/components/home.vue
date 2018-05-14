@@ -1,7 +1,18 @@
 <template>
   <div class="home">
     <div class="bg"></div>
-    <div class="header"></div>
+    <div class="header">
+      <el-dropdown @command="handleCommand"  trigger="click">
+        <span class="el-dropdown-link">
+          welcome {{this.user.nickname}}<i class="el-icon-arrow-down el-icon--right"></i>
+        </span>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item command="a" disabled="true">user</el-dropdown-item>
+          <el-dropdown-item command="b" disabled="true">seting</el-dropdown-item>
+          <el-dropdown-item command="c">Sign out</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </div>
     <div class="sidebar">
       <el-col>
         <el-menu
@@ -9,7 +20,7 @@
           class="el-menu-vertical-demo"
           background-color="transparent"
           text-color="#fff"
-          router="true"
+          :router="true"
           active-text-color="#ffd04b">
           <el-menu-item index="1" :route="{path: '/home'}">
             <i class="el-icon-menu"></i>
@@ -24,7 +35,7 @@
             <i class="el-icon-plus"></i>
             <span slot="title">Generating account</span>
           </el-menu-item>
-          <el-menu-item index="4" :route="{path: '/users'}">
+          <el-menu-item index="4" :route="{path: '/users'}" :disabled="this.dissabled">
             <i class="el-icon-tickets"></i>
             <span slot="title">User list</span>
           </el-menu-item>
@@ -50,8 +61,13 @@ export default {
       dissabled: false
     }
   },
+  computed: {
+    user () {
+      return this.$store.state.users
+    }
+  },
   mounted () {
-    if (this.$cookies.get('_name') === 'admin') {
+    if (this.$cookies.get('_name') !== 'admin') {
       this.dissabled = true
     }
     if (this.$route.path === '/home') {
@@ -70,7 +86,24 @@ export default {
       this.active = '4'
     }
   },
-  methods: {}
+  methods: {
+    handleCommand (command) {
+      this.$message('click on item ' + command)
+      if (command === 'c') {
+        this.$http.get('/api/account/logout').then((response) => {
+          if (response.data.status === 0) {
+            this.$cookies.remove('_name', {
+              domain: 'demo.eago.world',
+              path: '/'
+            })
+            this.$store.commit('setloginstatus', false)
+            this.$store.commit('setuser', {})
+            this.$router.push({name: 'login'})
+          }
+        })
+      }
+    }
+  }
 }
 </script>
 
@@ -97,6 +130,13 @@ export default {
     left:0;
     z-index: 2;
     background: rgba(0,0,0,0.8);
+  }
+  .header .el-dropdown{
+    float: right;
+    margin-right: 4%;
+    line-height:80px;
+    color:#f5f5f5;
+    font-size: 18px;
   }
   .sidebar{
     width: 200px;

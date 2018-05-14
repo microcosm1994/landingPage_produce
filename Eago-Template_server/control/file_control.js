@@ -282,7 +282,6 @@ exports.save = (req, res) => {
             Users.findById(req.body._id, (err, data) => {
                 if (err) throw err
                 if (data) {
-                    console.log(data)
                     callback(null, data)
                 } else {
                     result.status = 1
@@ -319,8 +318,20 @@ exports.save = (req, res) => {
         Lander.create(results.func3, (err, data) => {
             if (err) throw err
             if (data) {
-                result.data = results.func3
-                res.json(result)
+                let files = fs.readdirSync('/home/demo.eago.world/views')
+                async.each(files, function (file, callback) {
+                    if (file.indexOf('.zip') !== -1) {
+                        fs.unlinkSync('/home/demo.eago.world/views/' + file)
+                    } else {
+                        deletedir('/home/demo.eago.world/views/' + file)
+                    }
+                    callback(null)
+                }, function (err) {
+                    if (err) throw err
+                    result.path = fs.readdirSync('/home/demo.eago.world/views/')
+                    result.data = results.func3
+                    res.json(result)
+                })
             } else {
                 result.status = 1
                 result.message = '服务器错误'
@@ -384,6 +395,8 @@ exports.zip = (req, res) => {
                 }]
             }, function (err, results) {
                 if (err) throw err
+                console.log(results.func3)
+                resultdata.data = results.func3
                 res.json(resultdata)
             })
         } else {
@@ -399,29 +412,56 @@ exports.download = (req, res) => {
         status: 0,
         message: '下载成功'
     }
-    let filename = req.query.filename
+    let file = req.body
     async.auto({
         func1: function (callback) {
-            const output = fs.createWriteStream('/home/demo.eago.world/dowmload/' + filename + '.zip')
-            const archive = archiver('zip')
+            const archive = archiver('zip', {
+                zlib: { level: 9 } // Sets the compression level.
+            })
+            const output = fs.createWriteStream('/home/demo.eago.world/dowmload/' + file.name + '.zip')
+            let regexp = new RegExp('/home/demo.eago.world/dowmload/' + file.name)
             archive.pipe(output)
-            archive.bulk([
-                {
-                    cwd:'/home/demo.eago.world/dowmload/' + filename,    //设置相对路径
-                    src: ['*'],
-                    expand: true
-                }
-            ]);
-            archive.finalize()
-            callback(null)
+            async.each(file.data, function (item, callback) {
+                let unzip = item.replace(regexp, '')
+                archive.append(fs.createReadStream(item), { name: unzip})
+                callback(null)
+            }, function (err) {
+                if (err) throw err
+                archive.finalize()
+                callback(null)
+            })
         },
         func2: ['func1', function (results, callback) {
-            console.log('ok')
             callback(null)
         }]
     }, function (err, results) {
         if (err) throw err
+        res.set({
+            'Content-Type': 'application/octet-stream',
+            'Content-Disposition': 'attachment; filename=' + encodeURI(file.name + '.zip'),
+        });
+        resultdata.url = 'http://demo.eago.world/dowmload/' + file.name + '.zip'
         res.json(resultdata)
+    })
+}
+
+exports.clear = (req, res) => {
+    let result = {
+        status: 0,
+        message: 'Clear cache file successfully'
+    }
+    let files = fs.readdirSync('/home/demo.eago.world/dowmload/')
+    async.each(files, function (file, callback) {
+        if (file.indexOf('.zip') !== -1) {
+            fs.unlinkSync('/home/demo.eago.world/dowmload/' + file)
+        } else {
+            deletedir('/home/demo.eago.world/dowmload/' + file)
+        }
+        callback(null)
+    }, function (err) {
+        if (err) throw err
+        result.data = fs.readdirSync('/home/demo.eago.world/dowmload/')
+        res.json(result)
     })
 }
 
@@ -448,8 +488,71 @@ exports.mylander = (req, res) => {
             }).skip((req.query.page - 1) * req.query.size).limit(req.query.size - 0)
         } else {
             result.status = 1
+            result.count = 0
             result.message = '没有找到相关数据'
             res.json(result)
+        }
+    })
+}
+
+exports.deletelander = (req, res) => {
+    let result = {
+        status: 0,
+        message: 'file has been deleted'
+    }
+    async.auto({
+        func1: function (callback) {
+            Lander.findById({'_id': req.query._id}, (err, data) => {
+                if (err) throw err
+                if (data) {
+                    callback(null,data.name)
+                } else {
+                    result.status = 1
+                    result.message = 'file does not exist'
+                    res.json(result)
+                }
+            })
+        },
+        func2: ['func1', function (results, callback) {
+            co(function* () {
+                let delresult = yield client.list({
+                    prefix: 'page/' + results.func1
+                })
+                if (delresult) {
+                    callback(null, delresult.objects)
+                }
+            }).catch(function (err) {})
+        }],
+        func3:['func2', function (results,callback) {
+            let url = []
+            async.each(results.func2, function (file, callback) {
+                url.push(file.name)
+                callback(null)
+            }, function (err) {
+                if (err) throw err
+                co(function* () {
+                    let delresult = yield client.deleteMulti(url, {
+                        quiet: true
+                    });
+                    callback(null, delresult.res.status)
+                }).catch(function (err) {
+                    console.log(err)
+                })
+            })
+        }]
+    }, function (err, results) {
+        if (err) throw err
+        if (results.func3 === 200) {
+            Lander.findByIdAndRemove({'_id': req.query._id}, (err, data) => {
+                if (err) throw err
+                if (data) {
+                    res.json(result)
+                }
+            })
+        } else {
+            result.status = 1
+            result.message = 'There is an error when you delete the file. Please try again later'
+            results.json(result)
         }
     })
 }
