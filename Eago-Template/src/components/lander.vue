@@ -97,6 +97,7 @@ export default {
     },
     handleDownload (index, val) {
       this.dialogVisible = true
+      this.steps = 1
       this.$http.get('/api/file/clear').then((response) => {
         if (response.data.status === 0) {
           this.$http.get('/api/file/zip?filename=' + val).then((response) => {

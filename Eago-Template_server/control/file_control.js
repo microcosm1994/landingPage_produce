@@ -425,8 +425,10 @@ exports.download = (req, res) => {
                 let unzip = item.replace(regexp, '')
                 archive.append(fs.createReadStream(item), { name: unzip})
                 callback(null)
+                console.log(item);
             }, function (err) {
                 if (err) throw err
+                console.log(2);
                 archive.finalize()
                 callback(null)
             })
