@@ -10,7 +10,7 @@
               <span>{{o.filename}}</span>
               <div class="bottom clearfix">
                 <el-button type="text" class="button" @click="read_file(o.filename)">use it</el-button>
-                <el-button type="text" class="button" @click="window.open(o.fileurl, '_blank', 'width=375,height=700,menubar=no,toolbar=no,status=no,scrollbars=yes')">Preview</el-button>
+                <el-button type="text" class="button" @click="preview(o.fileurl)">Preview</el-button>
               </div>
             </div>
           </el-card>
@@ -58,6 +58,9 @@ export default {
           })
         }
       })
+    },
+    preview (url) {
+      window.open(url, '_blank', 'width=375,height=700,menubar=no,toolbar=no,status=no,scrollbars=yes')
     }
   }
 }
