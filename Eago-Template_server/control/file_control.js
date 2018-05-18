@@ -9,6 +9,8 @@ const Users = require(path.join(__dirname, '../models/user.js'))
 const template_url = '/home/demo.eago.world/template'
 const views_url = '/home/demo.eago.world/views'
 const archiver = require('archiver')
+const JSZip   = require('jszip')
+const ZIP = new JSZip()
 const client = new OSS({
     region: 'oss-cn-hongkong',
     accessKeyId: 'LTAIp9nawQ9RrKoh',
@@ -354,7 +356,7 @@ exports.zip = (req, res) => {
                 func1: function(callback){
                     let floder = [filename, filename + '/css', filename + '/img', filename + '/lib', filename + '/.idea']
                     async.each(floder, function (file, callback) {
-                        mkdir('/home/demo.eago.world/dowmload/' + file)
+                        mkdir('/home/demo.eago.world/dowmload/' + req.cookies._name + '/' + file)
                         callback(null)
                     }, function (err) {
                         if (err) throw err
@@ -374,7 +376,7 @@ exports.zip = (req, res) => {
                 func3: ['func2', function (results, callback) {
                     let zipFilename = []
                     async.each(results.func2.objects, function (file, callback) {
-                        let address = file.name.replace(/page/, '/home/demo.eago.world/dowmload')
+                        let address = file.name.replace(/page/, '/home/demo.eago.world/dowmload/' + req.cookies._name)
                         zipFilename.push(address)
                         co(function* () {
                             let streamresult = yield client.getStream(file.name)
@@ -395,7 +397,6 @@ exports.zip = (req, res) => {
                 }]
             }, function (err, results) {
                 if (err) throw err
-                console.log(results.func3)
                 resultdata.data = results.func3
                 res.json(resultdata)
             })
@@ -413,25 +414,45 @@ exports.download = (req, res) => {
         message: '下载成功'
     }
     let file = req.body
+    let regexp1 = new RegExp('/home/demo.eago.world/dowmload/' + req.cookies._name + '/' + file.name)
     async.auto({
         func1: function (callback) {
-            const archive = archiver('zip', {
-                zlib: { level: 9 } // Sets the compression level.
+            for (let i = 0; i < file.data.length; i++) {
+                let regexp2 = new RegExp(path.dirname(file.data[i]))
+                ZIP.folder(path.dirname(file.data[i]).replace(regexp1, '')).file(file.data[i].replace(regexp2, ''), fs.readFileSync(file.data[i]))
+            }
+            ZIP.generateNodeStream({streamFiles:true}).pipe(fs.createWriteStream('/home/demo.eago.world/dowmload/' + req.cookies._name + '/' + file.name + '.zip')).on('finish', function () {
+                console.log("out.zip written.")
             })
-            const output = fs.createWriteStream('/home/demo.eago.world/dowmload/' + file.name + '.zip')
-            let regexp = new RegExp('/home/demo.eago.world/dowmload/' + file.name)
-            archive.pipe(output)
-            async.each(file.data, function (item, callback) {
-                let unzip = item.replace(regexp, '')
-                archive.append(fs.createReadStream(item), { name: unzip})
-                callback(null)
-                console.log(item);
-            }, function (err) {
-                if (err) throw err
-                console.log(2);
-                archive.finalize()
-                callback(null)
-            })
+            callback()
+            // async.each(file.data, function (file, callback) {
+            //     let regexp2 = new RegExp(path.dirname(file))
+            //     ZIP.folder(path.dirname(file).replace(regexp1, '')).file(file.replace(regexp2, ''), fs.readFileSync(file));
+            //     callback(null)
+            // }, function (err) {
+            //     if (err) throw err
+            //     ZIP.generateNodeStream({streamFiles:true}).pipe(fs.createWriteStream('/home/demo.eago.world/dowmload/' + req.cookies._name + '/' + file.name + '.zip')).on('finish', function () {
+            //             console.log("out.zip written.")
+            //         })
+            //     callback()
+            // })
+            // const archive = archiver('zip', {
+            //     zlib: { level: 9 } // Sets the compression level.
+            // })
+            // const output = fs.createWriteStream('/home/demo.eago.world/dowmload/' + file.name + '.zip')
+            // let regexp = new RegExp('/home/demo.eago.world/dowmload/' + file.name)
+            // archive.pipe(output)
+            // async.each(file.data, function (item, callback) {
+            //     let unzip = item.replace(regexp, '')
+            //     archive.append(fs.createReadStream(item), { name: unzip})
+            //     callback(null)
+            //     console.log(item);
+            // }, function (err) {
+            //     if (err) throw err
+            //     console.log(2);
+            //     archive.finalize()
+            //     callback(null)
+            // })
         },
         func2: ['func1', function (results, callback) {
             callback(null)
@@ -442,7 +463,7 @@ exports.download = (req, res) => {
             'Content-Type': 'application/octet-stream',
             'Content-Disposition': 'attachment; filename=' + encodeURI(file.name + '.zip'),
         });
-        resultdata.url = 'http://demo.eago.world/dowmload/' + file.name + '.zip'
+        resultdata.url = 'http://demo.eago.world/dowmload/' + req.cookies._name + '/' + file.name + '.zip'
         res.json(resultdata)
     })
 }
@@ -452,17 +473,17 @@ exports.clear = (req, res) => {
         status: 0,
         message: 'Clear cache file successfully'
     }
-    let files = fs.readdirSync('/home/demo.eago.world/dowmload/')
+    let files = fs.readdirSync('/home/demo.eago.world/dowmload/' + req.cookies._name)
     async.each(files, function (file, callback) {
         if (file.indexOf('.zip') !== -1) {
-            fs.unlinkSync('/home/demo.eago.world/dowmload/' + file)
+            fs.unlinkSync('/home/demo.eago.world/dowmload/' + req.cookies._name + '/' + file)
         } else {
-            deletedir('/home/demo.eago.world/dowmload/' + file)
+            deletedir('/home/demo.eago.world/dowmload/' + req.cookies._name + '/' + file)
         }
         callback(null)
     }, function (err) {
         if (err) throw err
-        result.data = fs.readdirSync('/home/demo.eago.world/dowmload/')
+        result.data = fs.readdirSync('/home/demo.eago.world/dowmload/' + req.cookies._name)
         res.json(result)
     })
 }
